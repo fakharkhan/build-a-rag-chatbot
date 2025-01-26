@@ -75,11 +75,21 @@ stats = index.describe_index_stats()
 print("Index after upsert:")
 print(stats)
 
+# Wait a bit longer for the namespace to be available
+time.sleep(10)  # Increased from 5 to 10 seconds
+
 # Check if namespace exists in stats
 if namespace in stats['namespaces']:
     print(f"Namespace '{namespace}' has {stats['namespaces'][namespace]['vector_count']} vectors.")
+    if stats['namespaces'][namespace]['vector_count'] == 0:
+        print("Warning: Namespace exists but contains no vectors. Check your document processing.")
 else:
     print(f"Namespace '{namespace}' not found in index stats. Upsert may have failed.")
+    print("Possible causes:")
+    print("- The document processing failed to create valid chunks")
+    print("- The embeddings generation failed")
+    print("- The Pinecone upsert operation failed")
+    print("Please check your input document and try again.")
 print("\n")
 time.sleep(2)
 
