@@ -1,4 +1,4 @@
-# WonderVector5000 Chatbot
+# Build a RAG Chatbot
 
 This application is a Retrieval-Augmented Generation (RAG) chatbot that combines the power of OpenAI's GPT-4 with Pinecone's vector database to provide context-aware responses about the WonderVector5000 system.
 
