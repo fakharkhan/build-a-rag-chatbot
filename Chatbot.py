@@ -2,8 +2,39 @@ from langchain_openai import ChatOpenAI
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain import hub
+from langsmith import Client
 import os
 import time
+from pinecone import Pinecone
+from langchain_pinecone import PineconeVectorStore
+from langchain_huggingface import HuggingFaceEmbeddings
+
+# Initialize LangSmith client
+client = Client(api_key=os.environ.get("LANGSMITH_API_KEY"))
+
+def setup_pinecone():
+    # Initialize Pinecone
+    pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY"))
+    
+    # Initialize embeddings
+    model_name = 'sentence-transformers/multi-qa-mpnet-base-dot-v1'
+    embeddings = HuggingFaceEmbeddings(model_name=model_name)
+    
+    # Set up index name and namespace
+    index_name = "rag-getting-started"
+    namespace = "wondervector5000"
+    
+    # Get the Pinecone index
+    index = pc.Index(index_name)
+    
+    # Create the PineconeVectorStore
+    docsearch = PineconeVectorStore(
+        index_name=index_name,
+        embedding=embeddings,
+        namespace=namespace
+    )
+    
+    return docsearch
 
 class Chatbot:
     def __init__(self, docsearch):
@@ -47,5 +78,17 @@ answer1_without_knowledge = llm.invoke(query1)
 # Print results
 print("Query 1:", query1)
 print("\nAnswer without knowledge:\n\n", answer1_without_knowledge.content)
+print("\n")
+time.sleep(2)
+
+# Initialize the Chatbot with Pinecone context
+docsearch = setup_pinecone()
+bot = Chatbot(docsearch)
+
+# Get answer with Pinecone knowledge
+answer1_with_knowledge = bot.chat(query1)
+
+# Print results
+print("Answer with knowledge:\n\n", answer1_with_knowledge)
 print("\n")
 time.sleep(2)
