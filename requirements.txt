@@ -1,4 +1,10 @@
-pinecone-client==3.0.1
+flask
+langchain-openai
+pinecone-client
+langchain-pinecone
+langchain-huggingface
+langchain
+langsmith
 openai==0.28.1
 python-dotenv==1.0.0
 tiktoken==0.5.2 

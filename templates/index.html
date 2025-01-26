@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WonderVector5000 Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .chat-container {
+            scrollbar-width: thin;
+            scrollbar-color: #9CA3AF #E5E7EB;
+        }
+        .chat-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-container::-webkit-scrollbar-track {
+            background: #E5E7EB;
+        }
+        .chat-container::-webkit-scrollbar-thumb {
+            background-color: #9CA3AF;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-4xl mx-auto p-6">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">WonderVector5000 Chat</h1>
+            <div class="flex items-center space-x-4">
+                <label class="flex items-center cursor-pointer">
+                    <div class="relative">
+                        <input type="checkbox" id="knowledge-toggle" class="sr-only">
+                        <div class="w-10 h-4 bg-gray-300 rounded-full shadow-inner"></div>
+                        <div class="dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition transform duration-300"></div>
+                    </div>
+                    <div class="ml-3 text-gray-700 font-medium">Knowledge Base</div>
+                </label>
+                <button onclick="clearChat()" class="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                    Clear Chat
+                </button>
+            </div>
+        </div>
+
+        <div id="chat-container" class="chat-container bg-white rounded-lg shadow-sm p-6 h-[500px] overflow-y-auto mb-4">
+            <div class="text-center text-gray-500 py-4">Start a conversation with the WonderVector5000...</div>
+        </div>
+
+        <div class="flex space-x-4">
+            <input 
+                type="text" 
+                id="chat-input" 
+                placeholder="Type your question here..." 
+                onkeydown="handleKeyPress(event)"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            >
+            <button 
+                onclick="sendMessage()" 
+                class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            >
+                Send
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const toggle = document.getElementById('knowledge-toggle');
+        const toggleDot = document.querySelector('.dot');
+
+        // Initialize toggle state
+        toggleDot.style.backgroundColor = toggle.checked ? '#2563eb' : '#d1d5db';
+        toggleDot.style.transform = toggle.checked ? 'translateX(100%)' : 'translateX(0)';
+
+        toggle.addEventListener('change', function() {
+            toggleDot.style.transform = this.checked ? 'translateX(100%)' : 'translateX(0)';
+            toggleDot.style.backgroundColor = this.checked ? '#2563eb' : '#d1d5db';
+        });
+
+        function addMessage(role, content) {
+            const message = document.createElement('div');
+            message.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} mb-4`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `max-w-[80%] px-4 py-2 rounded-lg ${
+                role === 'user' 
+                    ? 'bg-blue-600 text-white rounded-br-none' 
+                    : 'bg-gray-100 text-gray-800 rounded-bl-none'
+            }`;
+            bubble.textContent = content;
+            
+            message.appendChild(bubble);
+            chatContainer.appendChild(message);
+            chatContainer.scrollTop = chatContainer.scrollTop + 100;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const query = input.value.trim();
+            if (!query) return;
+            
+            addMessage('user', query);
+            input.value = '';
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: query,
+                        use_knowledge: toggle.checked
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    addMessage('bot', data.response);
+                } else {
+                    addMessage('bot', `Error: ${data.error}`);
+                }
+            } catch (error) {
+                addMessage('bot', `Error: ${error.message}`);
+            }
+        }
+
+        function clearChat() {
+            chatContainer.innerHTML = '<div class="text-center text-gray-500 py-4">Start a conversation with the WonderVector5000...</div>';
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html> 
