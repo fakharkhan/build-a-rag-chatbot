@@ -1,4 +1,4 @@
-# WonderVector5000 Chatbot
+# Build a RAG Chatbot
 
 This application is a Retrieval-Augmented Generation (RAG) chatbot that combines the power of OpenAI's GPT-4 with Pinecone's vector database to provide context-aware responses about the WonderVector5000 system.
 
@@ -28,8 +28,8 @@ This application is a Retrieval-Augmented Generation (RAG) chatbot that combines
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo/wondervector5000-chatbot.git
-   cd wondervector5000-chatbot
+   git clone https://github.com/fakharkhan/build-a-rag-chatbot.git
+   cd build-a-rag-chatbot
    ```
 
 2. Install dependencies using UV:
